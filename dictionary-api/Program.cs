@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -28,22 +29,29 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
-app.MapGet("/api/translate", async (string text, Context context) =>
+app.UseCors(options =>
 {
-    var phrase = await context.Phrases.SingleOrDefaultAsync(p => p.English == text);
+    options.AllowAnyHeader();
+    options.AllowAnyMethod();
+    options.AllowAnyOrigin();
+});
 
-    if (phrase is null) return Results.NotFound();
+app.MapGet("/api/translate", async (string? text, Context context) =>
+    {
+        if (text is null) return Results.NotFound();
 
-    return Results.Ok(phrase.Hungarian);
-})
+        var phrase = await context.Phrases.SingleOrDefaultAsync(p => p.English == text);
+
+        if (phrase is null) return Results.NotFound();
+
+        return Results.Ok(phrase.Hungarian);
+    })
     .Produces<string>()
     .Produces(StatusCodes.Status404NotFound)
     .WithOpenApi(op => new OpenApiOperation(op)
     {
-        Summary = "Translate a phrase from English to Hungarian"
+        Summary = "Translate a phrase from English to Hungarian",
     });
 
 app.Run();
