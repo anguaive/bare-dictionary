@@ -1,0 +1,11 @@
+body {
+    --color-bg: #f0f0f0;
+    --color-panel: #ffffff;
+    --color-header: #f0f0f0;
+    --color-border: #cccccc;
+    --color-fg: #444444;
+    --color-error: #ff4444;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+}
